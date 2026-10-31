@@ -32,7 +32,30 @@ func interact(name: String) -> void:
 	await settle()
 
 
+func click_at(point: Vector2, button: MouseButton = MOUSE_BUTTON_LEFT) -> void:
+	# Exercise GUI handling and Main._unhandled_input, not just gameplay methods.
+	var event := InputEventMouseButton.new()
+	event.position = point
+	event.global_position = point
+	event.button_index = button
+	event.pressed = true
+	get_viewport().push_input(event, true)
+	event = event.duplicate()
+	event.pressed = false
+	get_viewport().push_input(event, true)
+
+
 func _ready() -> void:
+	# Fail explicitly if Main cannot compile, rather than hanging after a script error.
+	get_tree().create_timer(120.0).timeout.connect(func():
+		push_error("Integration checks timed out")
+		get_tree().quit(1)
+	)
+	var main_script := load("res://game/main.gd") as Script
+	if main_script == null or not main_script.can_instantiate():
+		push_error("Main script could not compile")
+		get_tree().quit(1)
+		return
 	GameState.reset()
 	game = load("res://game/main.tscn").instantiate()
 	add_child(game)
@@ -47,34 +70,38 @@ func _ready() -> void:
 	check(not game.current_room.contains_walk_point(Vector2(625, 480)), "Crate is excluded")
 	check(not game.current_room.contains_walk_point(Vector2(40, 500)), "Room bounds are excluded")
 	var start := player.position
-	game.handle_world_click(Vector2(40, 500), MOUSE_BUTTON_LEFT)
+	click_at(Vector2(40, 500))
 	await frames(3)
 	check(player.position == start and not player.walking, "Outside clicks do nothing")
 
 	player.position = Vector2(420, 480)
-	game.handle_world_click(Vector2(830, 480), MOUSE_BUTTON_LEFT)
+	click_at(Vector2(830, 480))
+	check(player.walking and player.destination.distance_to(Vector2(830, 480)) < 0.01, "Mouse event reaches world input at the clicked position")
 	var visited_detour := false
+	var stayed_in_bounds := true
 	for index in 500:
 		await frames(1)
 		var point := player.position
-		check(not Rect2(511, 401, 228, 153).has_point(point), "Path never crosses crate")
+		stayed_in_bounds = stayed_in_bounds and not Rect2(511, 401, 228, 153).has_point(point)
 		visited_detour = visited_detour or point.y < 401 or point.y > 554
 		if not player.walking:
 			break
+	check(stayed_in_bounds, "Path never crosses crate")
 	check(visited_detour and player.position.distance_to(Vector2(830, 480)) < 12, "Routes around crate and reaches target")
 
 	game.request_interaction(game.current_room.get_node("Hotspots/Key"))
 	check(game.pending_hotspot != null, "Interaction queues while walking")
-	game.handle_world_click(Vector2(950, 580), MOUSE_BUTTON_LEFT)
+	click_at(Vector2(950, 580))
 	await settle()
 	check(GameState.inventory.is_empty(), "New ground click cancels pending pickup")
 	check(player.position.distance_to(Vector2(950, 580)) < 12, "New destination wins")
-	game.handle_world_click(Vector2(1135, 290), MOUSE_BUTTON_RIGHT)
+	click_at(Vector2(1135, 290), MOUSE_BUTTON_RIGHT)
 	check(not player.walking and ui.response.text.contains("locked"), "Right-click examines without walking")
 	await interact("Gate")
 	check(game.current_room.name == "Courtyard" and not GameState.gate_unlocked, "Door starts locked")
 	check(ui.response.text.begins_with("Locked"), "Locked door gives feedback")
-	await interact("Key")
+	click_at(Vector2(350, 472))
+	await settle()
 	check(GameState.inventory == [&"gate_key"], "Key is collected")
 	check(not game.current_room.get_node("Hotspots/Key").visible, "Collected key disappears")
 	check(not GameState.add_item(&"gate_key") and GameState.inventory.size() == 1, "Duplicate pickup rejected")

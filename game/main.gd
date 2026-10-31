@@ -42,7 +42,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	if event is InputEventMouseButton and event.pressed:
 		# Use this click's position; the polled mouse position can lag a native event.
-		var point := get_global_transform_with_canvas().affine_inverse() * event.position
+		var point: Vector2 = get_global_transform_with_canvas().affine_inverse() * event.position
 		handle_world_click(point, event.button_index)
 
 

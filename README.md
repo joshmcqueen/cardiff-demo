@@ -6,10 +6,10 @@ A two-room point-and-click learning project for **Godot 4.7.2**, using GDScript 
 
 1. Open `project.godot` in Godot.
 2. In the FileSystem dock, double-click `game/main.tscn`.
-3. Press **F5**, or click the Run Project triangle at the top right. Main is already configured as the starting scene.
-4. Press **F8** in the editor to stop. Running again starts a fresh puzzle.
+3. Press **⌘B on macOS** (**F5 on Windows/Linux**), or click the Run Project triangle at the top right. Main is already configured as the starting scene.
+4. Click the square **Stop** button in the editor to stop. Running again starts a fresh puzzle.
 
-Use **F5** for gameplay. **F6** runs only the selected scene: a room on its own shows its scenery, but does not include Main's player and interface.
+Use **Run Project** for gameplay. **Run Current Scene** runs only the selected scene: a room on its own shows its scenery, but does not include Main's player and interface. Godot documents the [platform-specific Run Project shortcuts](https://docs.godotengine.org/en/latest/getting_started/step_by_step/nodes_and_scenes.html#setting-the-main-scene).
 
 If an older standalone demo window is still open, close it and run again from Godot to load the latest scripts.
 
@@ -23,7 +23,7 @@ Run Main and click the courtyard floor. The character walks there, routing aroun
 
 Press **F1** to see the actual navigation polygons in green. Gold crosses mark object approach points and room entrances. The player's root position represents their feet; their artwork extends upward from that point.
 
-Open `player/player.tscn`, select the **Player** root and change **Walk Speed** in the Inspector. Run with F5 to see the difference. Change properties while the game is stopped if you want to save them.
+Open `player/player.tscn`, select the **Player** root and change **Walk Speed** in the Inspector. Use Run Project to see the difference. Change properties while the game is stopped if you want to save them.
 
 Open `rooms/courtyard.tscn` and select **NavigationRegion2D**. Its **Navigation Polygon** resource holds the walkable area. The crate is excluded from that area; a visible shape alone does not block navigation.
 
@@ -102,9 +102,9 @@ Duplicating a room also duplicates its hotspot settings, so replace inherited pu
 
 ## Manual checks and current validation
 
-Before handoff, Godot imported and loaded the project successfully, and the engine integration checks passed for bounded movement, cancellation, inventory selection/scrolling, the puzzle and returning between rooms. The visual check confirmed placeholder rendering and the F1 overlay.
+The startup parse error in Main's click-coordinate calculation is fixed with an explicit Vector2 type annotation. The engine integration suite now checks that Main can compile, fails with a nonzero exit status if compilation fails, and has a timeout to prevent a broken test run from hanging.
 
-The visual playthrough exposed a mismatch between a mouse button event's position and the polled cursor position. Main now uses the actual click event transformed into world coordinates. **That final input adjustment has not been re-tested; testing was handed over to you at your request.** Temporary click diagnostics have been removed.
+The integration suite passes **43 checks**, including mouse events delivered through Godot's real GUI/world input pipeline, navigation around the crate, cancellation, inventory selection/scrolling, the key/door/bell puzzle and room-state persistence. The actual game window was also exercised for pickup, drawer reveal, item selection, unlocking, entering the gatehouse, ringing the bell and returning to the courtyard. The drawer renders above room labels so its contents are not overlapped, and that adjustment was checked after restarting the game.
 
 Useful manual checks:
 
@@ -116,7 +116,13 @@ Useful manual checks:
 - Resize the game window. Check that it remains proportional, with letterboxing where needed and aligned click targets.
 - To exercise overflow manually without adding gameplay objects: pause a running game, switch the Scene dock to **Remote**, select **GameState**, add several unique StringName values to its **Inventory** array, then resume. Add the entries before opening the drawer for the first time, or collect the key afterward so `inventory_changed` refreshes the UI. Restarting clears these temporary items.
 
-The existing optional engine checks are in `tests/smoke.tscn`; no testing plugin is installed. No further checks were run after the manual-testing handoff.
+The optional engine checks are in `tests/smoke.tscn`; no testing plugin is installed. On this Mac, run them from the project folder with:
+
+```sh
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . res://tests/smoke.tscn --fixed-fps 60 --log-file /tmp/cardiff-tests.log
+```
+
+A passing run prints `Cardiff integration: 43 checks, 0 failures` and exits successfully. The sandboxed engine may also print a macOS system-certificate lookup warning; this demo performs no network requests.
 
 ## Deliberate limits
 
