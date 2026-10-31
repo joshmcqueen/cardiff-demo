@@ -1,0 +1,181 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://rooms/room.gd" id="1"]
+
+[ext_resource type="PackedScene" path="res://rooms/hotspot.tscn" id="2"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
+vertices = PackedVector2Array(80, 330, 510, 330, 740, 330, 1200, 330, 80, 400, 510, 400, 740, 400, 1200, 400, 80, 555, 510, 555, 740, 555, 1200, 555, 80, 660, 510, 660, 740, 660, 1200, 660)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 5, 4), PackedInt32Array(1, 2, 6, 5), PackedInt32Array(2, 3, 7, 6), PackedInt32Array(4, 5, 9, 8), PackedInt32Array(6, 7, 11, 10), PackedInt32Array(8, 9, 13, 12), PackedInt32Array(9, 10, 14, 13), PackedInt32Array(10, 11, 15, 14)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(80, 330, 1200, 330, 1200, 660, 80, 660), PackedVector2Array(510, 400, 510, 555, 740, 555, 740, 400)])
+agent_radius = 0.0
+
+[node name="Courtyard" type="Node2D"]
+script = ExtResource("1")
+room_title = "Castle courtyard"
+
+[node name="Scenery" type="Node2D" parent="."]
+
+[node name="Background" type="Polygon2D" parent="Scenery"]
+polygon = PackedVector2Array(0, 0, 1280, 0, 1280, 720, 0, 720)
+color = Color(0.055, 0.085, 0.12, 1)
+
+[node name="Wall" type="Polygon2D" parent="Scenery"]
+polygon = PackedVector2Array(80, 210, 1200, 210, 1200, 340, 80, 340)
+color = Color(0.13, 0.20, 0.25, 1)
+
+[node name="Floor" type="Polygon2D" parent="Scenery"]
+polygon = PackedVector2Array(60, 330, 1220, 330, 1220, 670, 60, 670)
+color = Color(0.16, 0.25, 0.27, 1)
+
+[node name="FloorEdge" type="Line2D" parent="Scenery"]
+points = PackedVector2Array(60, 330, 1220, 330, 1220, 670, 60, 670, 60, 330)
+width = 2.0
+default_color = Color(0.30, 0.43, 0.44, 1)
+
+[node name="CrateShadow" type="Polygon2D" parent="Scenery"]
+polygon = PackedVector2Array(530, 440, 738, 440, 738, 548, 530, 548)
+color = Color(0.04, 0.07, 0.08, 0.5)
+
+[node name="Crate" type="Polygon2D" parent="Scenery"]
+polygon = PackedVector2Array(530, 420, 720, 420, 720, 535, 530, 535)
+color = Color(0.52, 0.36, 0.24, 1)
+
+[node name="CrateInset" type="Line2D" parent="Scenery"]
+points = PackedVector2Array(540, 430, 710, 430, 710, 525, 540, 525, 540, 430, 710, 525)
+width = 3.0
+default_color = Color(0.73, 0.53, 0.34, 1)
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_floor")
+
+[node name="Entrances" type="Node2D" parent="."]
+
+[node name="Start" type="Marker2D" parent="Entrances"]
+position = Vector2(240, 570)
+
+[node name="FromGatehouse" type="Marker2D" parent="Entrances"]
+position = Vector2(1080, 435)
+
+[node name="Brand" type="Label" parent="Scenery"]
+offset_left = 60.0
+offset_top = 35.0
+offset_right = 710.0
+offset_bottom = 65.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.88, 0.91, 0.88, 1)
+theme_override_font_sizes/font_size = 16
+text = "C A R D I F F   /   P L A Y A B L E   S T U D Y"
+
+[node name="Title" type="Label" parent="Scenery"]
+offset_left = 60.0
+offset_top = 90.0
+offset_right = 910.0
+offset_bottom = 155.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.88, 0.91, 0.88, 1)
+theme_override_font_sizes/font_size = 46
+text = "Castle courtyard"
+
+[node name="Subtitle" type="Label" parent="Scenery"]
+offset_left = 63.0
+offset_top = 155.0
+offset_right = 763.0
+offset_bottom = 190.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.57, 0.69, 0.71, 1)
+theme_override_font_sizes/font_size = 19
+text = "01  /  Find a way into the gatehouse."
+
+[node name="CrateLabel" type="Label" parent="Scenery"]
+offset_left = 590.0
+offset_top = 462.0
+offset_right = 690.0
+offset_bottom = 492.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.88, 0.91, 0.88, 1)
+theme_override_font_sizes/font_size = 18
+text = "CRATE"
+
+[node name="Controls" type="Label" parent="Scenery"]
+offset_left = 60.0
+offset_top = 680.0
+offset_right = 1220.0
+offset_bottom = 710.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.57, 0.69, 0.71, 1)
+theme_override_font_sizes/font_size = 16
+text = "LEFT CLICK  walk / interact     ·     RIGHT CLICK  examine     ·     F1  boundaries"
+
+[node name="Door" type="Polygon2D" parent="Scenery"]
+polygon = PackedVector2Array(1080, 215, 1190, 215, 1190, 375, 1080, 375)
+color = Color(0.5, 0.32, 0.23, 1)
+
+[node name="DoorFrame" type="Line2D" parent="Scenery"]
+points = PackedVector2Array(1070, 375, 1070, 205, 1200, 205, 1200, 375)
+width = 5.0
+default_color = Color(0.56, 0.64, 0.62, 1)
+
+[node name="DoorLabel" type="Label" parent="Scenery"]
+offset_left = 1080.0
+offset_top = 270.0
+offset_right = 1190.0
+offset_bottom = 305.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 17
+text = "GATEHOUSE"
+horizontal_alignment = 1
+
+[node name="Hotspots" type="Node2D" parent="."]
+
+[node name="Key" parent="Hotspots" instance=ExtResource("2")]
+position = Vector2(350, 472)
+hotspot_id = &"key"
+display_name = "Gate key"
+examination = "A brass key. Perhaps it fits the gatehouse door."
+hit_size = Vector2(100, 70)
+pickup_item = &"gate_key"
+
+[node name="Approach" parent="Hotspots/Key" index="0"]
+position = Vector2(0, 65)
+
+[node name="Art" type="Polygon2D" parent="Hotspots/Key"]
+polygon = PackedVector2Array(-28, -12, -12, -12, -12, -5, 26, -5, 26, 10, 18, 10, 18, 4, -12, 4, -12, 12, -28, 12, -36, 5, -36, -5)
+color = Color(0.94, 0.76, 0.39, 1)
+
+[node name="Label" type="Label" parent="Hotspots/Key"]
+offset_left = -60.0
+offset_top = -47.0
+offset_right = 60.0
+offset_bottom = -18.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 16
+text = "GATE KEY"
+horizontal_alignment = 1
+
+[node name="Crate" parent="Hotspots" instance=ExtResource("2")]
+position = Vector2(625, 477)
+hotspot_id = &"crate"
+display_name = "Heavy crate"
+examination = "A very heavy crate. Better walk around it."
+hit_size = Vector2(190, 115)
+
+[node name="Approach" parent="Hotspots/Crate" index="0"]
+position = Vector2(0, 105)
+
+[node name="Gate" parent="Hotspots" instance=ExtResource("2")]
+position = Vector2(1135, 290)
+hotspot_id = &"gate"
+display_name = "Gatehouse door"
+examination = "A locked gatehouse door with a small brass keyhole."
+hit_size = Vector2(130, 180)
+exit_direction = 3
+destination_room = "res://rooms/gatehouse.tscn"
+destination_entrance = &"FromCourtyard"
+
+[node name="Approach" parent="Hotspots/Gate" index="0"]
+position = Vector2(0, 130)
+
+[editable path="Hotspots/Key"]
+[editable path="Hotspots/Crate"]
+[editable path="Hotspots/Gate"]
